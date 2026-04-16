@@ -1,0 +1,12 @@
+# 実行ファイル
+*.out
+*.exe
+a
+test
+
+# ログと一時ファイル
+*.log
+.DS_Store
+
+# スニペット生成物
+.vscode/kyopro.code-snippets

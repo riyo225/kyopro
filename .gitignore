@@ -1,0 +1,12 @@
+*.out
+*.exe
+a
+test
+
+*.bin
+
+.vscode/kyopro.code-snippets
+
+.DS_Store
+.vscode/
+!.vscode/settings.json

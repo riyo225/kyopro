@@ -1,0 +1,1 @@
+{"name":"Local: A_60_Stock_Price","url":"/home/rmaejp/kyopro/practice/novisteps/A_60_Stock_Price.cpp","tests":[{"id":1771948260127,"input":"6\n6 2 5 3 1 4","output":"-1 1 1 3 4 3"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"/home/rmaejp/kyopro/practice/novisteps/A_60_Stock_Price.cpp","group":"local","local":true}

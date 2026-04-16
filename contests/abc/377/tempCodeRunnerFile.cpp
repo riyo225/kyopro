@@ -1,0 +1,37 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+#define rep(i, n) for (int i = 0; i < (int)(n); i++)
+
+int n, m;
+int l[200009], r[200009];
+vector<pair<int, int>> p;
+int s[200009];
+
+int main() {
+    cin >> n >> m;
+    for (int i = 0; i < n; i++) {
+        cin >> l[i] >> r[i];
+        p.push_back(make_pair(l[i], r[i]));
+    }
+
+    sort(p.begin(), p.end());
+
+    for (int i = 0; i < n; i++) {
+        int mi = 200009;
+        int pos = lower_bound(p.begin(), p.end(), i+1) - p.begin();
+
+        for (int j = pos; j <= p.size(); j++) {
+            mi = min(mi, p[j].second);
+        }
+        s[i] = mi;
+    }
+    
+    ll ans = 0;
+    for (int i = 0; i < n; i++) {
+        ans += (s[i] - (i + 1));
+    }
+    cout << ans << endl;
+    return 0;
+}

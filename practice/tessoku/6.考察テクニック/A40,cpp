@@ -1,0 +1,25 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int n;
+int a[200009];
+long long sum[109];
+
+int main() {
+    cin >> n;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+
+    for (int i = 1; i <= n; i++) {
+        sum[a[i]]++;
+    }
+    
+    long long ans = 0;
+    for (int i = 1; i <= 100; i++) {
+        if (sum[i] >= 3) {
+            ans += sum[i] * (sum[i]-1) * (sum[i]-2) / 6;
+        }
+    }
+
+    cout << ans << endl;
+    return 0;
+}

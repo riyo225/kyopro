@@ -1,0 +1,105 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+using ld = long double;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
+using pld = pair<ld, ld>;
+const int INF_INT = 2e9;
+const ll INF_LL = 2e18;
+// const int MOD = 998244353;
+// const int MOD = 1000000007;
+const int dx[] = {1, 0, -1, 0};
+const int dy[] = {0, 1, 0, -1};
+#define rep(i, n) for (ll i = 0; i < (ll)(n); ++i)
+#define rep1(i, n) for (ll i = 1; i <= (ll)(n); ++i)
+#define rrep(i, n) for (ll i = (ll)(n)-1; i >= 0; --i)
+#define all(v) (v).begin(), (v).end()
+#define rall(v) (v).rbegin(), (v).rend()
+#define sz(x) ((ll)(x).size())
+#define nl "\n"
+#define popcount(n) __builtin_popcountll(n);
+#define yes_no(ans) cout << ((ans) ? "Yes" : "No") << nl;
+#define YES_NO(ans) cout << ((ans) ? "YES" : "NO") << nl;
+template<class T> bool chmax(T& a, const T& b) { if (a < b) { a = b; return true; } return false; }
+template<class T> bool chmin(T& a, const T& b) { if (a > b) { a = b; return true; } return false; }
+
+// #define DEBUG
+#ifdef DEBUG
+    #define debug(x) cerr << #x << ": " << (x) << endl
+    #define debug_vec(vec) { cerr << #vec << ": "; for(const auto& elem : vec) cerr << elem << " "; cerr << endl; }
+    #define debug_pair(p) cerr << #p << ": (" << (p).first << ", " << (p).second << ")" << endl
+    #define debug_2d_vec(vec2d) { cerr << #vec2d << ":" << endl; for(const auto& row : vec2d) { cerr << "  "; for(const auto& elem : row) cerr << elem << " "; cerr << endl; } }
+    #define debug_map(m) { cerr << #m << ": "; for(const auto& [key, val] : m) cerr << "(" << key << ":" << val << ") "; cerr << endl; }
+#else
+    #define debug(x)
+    #define debug_vec(vec)
+    #define debug_pair(p)
+    #define debug_2d_vec(vec2d)
+    #define debug_map(m)
+#endif
+
+void setup_fast_io() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout << fixed << setprecision(15);
+}
+
+// using Graph = vector<vector<ll>>;
+// using Graph = vector<vector<Edge>>;
+
+int main() {
+    setup_fast_io();
+
+    vector<vector<char>> vec(2, vector<char> (2));
+    rep(i, 2) {
+        rep(j, 2) {
+            cin >> vec[i][j];
+        }
+    }
+
+    ll cnt = 0;
+    vector<vector<bool>> seen(2, vector<bool> (2, false));
+    queue<ll> que;
+    ll h = 2;
+    ll w = 2;
+
+    const int dr[] = {1, 0, -1, 0}; const int dc[] = {0, 1, 0, -1};
+    auto is_inside = [&](int r, int c) { return 0 <= r && r < h && 0 <= c && c < w; };
+    auto is_outside = [&](int r, int c) { return r < 0 || h <= r || c < 0 || w <= c; };
+    auto get_id = [&](int r, int c) { return r * w + c; };
+    auto get_2d = [&](int id)  { return make_pair(id / w, id % w); };
+
+    auto dfs = [&](auto self, pll v) -> void {
+        ll x = v.first;
+        ll y = v.second;
+        seen[x][y] = true;
+    
+        // 行きがけの処理
+    
+        rep(i, 4) {
+            ll nx = x + dr[i];
+            ll ny = y + dc[i];
+
+            if (is_outside(nx, ny)) continue;
+            if (seen[nx][ny]) continue;
+            if (vec[nx][ny] == '.') continue;
+            self(self, {nx, ny});
+        }
+    
+        // 帰りがけの処理
+    };
+
+    rep(i, 2) {
+        rep(j, 2) {
+            if (seen[i][j] || vec[i][j] == '.') continue;
+            cnt++;
+            dfs(dfs, {i, j});
+        }
+    }
+
+    yes_no(cnt == 1);
+
+    return 0;
+}
