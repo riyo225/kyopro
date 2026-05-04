@@ -1,43 +1,43 @@
 // [prefix: rle]
 
-namespace RLE {
-    template <typename V>
-    struct Node {
-        V val;
-        ll start;
-        ll len;
-    };
+template <typename T>
+struct RLE {
+    using V = typename T::value_type;
 
-    template <typename T>
-    auto encode (const T& s) {
-        using V = typename T::value_type;
-        vector<Node<V>> res;
-        ll n = s.size();
-        for (ll l = 0; l < n; ) {
+    struct Node { V val; ll len; };
+
+    vector<Node> blocks;
+    vector<ll> prefix_len;
+
+    RLE(const T& s) {
+        prefix_len.push_back(0);
+        for (ll l = 0, n = s.size(); l < n; ) {
             ll r = l + 1;
             while (r < n && s[l] == s[r]) r++;
-            res.emplace_back({s[l], l, r - l});
+            blocks.push_back({s[l], r - l});
+            prefix_len.push_back(prefix_len.back() + (r - l));
             l = r;
         }
-        return res;
     }
 
-    template <typename T, typename V = typename T::value_type>
-    T decode(const vector<Node<V>>& encoded) {
+    auto begin() const { return blocks.begin(); }
+    auto end() const { return blocks.end(); }
+
+    T decode() const {
         T res;
-        for (const auto& node : encoded) {
-            for (ll i = 0; i < node.len; i++) {
-                res.push_back(node.val);
-            }
+        res.reserve(prefix_len.back());
+        for (const auto& [val, len] : blocks) {
+            for (int i = 0; i < len; i++) res.push_back(val);
         }
         return res;
     }
 
-    template <typename V>
-    auto find_block(const vector<Node<V>>& encoded, ll k) {
-        auto it = upper_bound(all(encoded), k, [](ll val, const Node<V>& node) {
-            return val < node.start;
-        });
-        return prev(it);
+    V get_val_at(ll k) const {
+        assert(0 <= k && k < prefix_len.back());
+
+        auto it = upper_bound(all(prefix_len), k);
+        ll idx = distance(prefix_len.begin(), prev(it));
+
+        return blocks[idx].val;
     }
-}
+};

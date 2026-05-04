@@ -1,4 +1,4 @@
-// [prefix: perm]
+// [prefix: junretuzentansaku]
 
 vector<ll> p(n);
 iota(all(p), 0);

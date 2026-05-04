@@ -1,4 +1,4 @@
-// [prefix: st]
+// [prefix: segmenttree]
 
 // SegmentTree<Monoid<ll>> seg(n);
 // SegmentTree<MonoidSum<mint>> seg(n);

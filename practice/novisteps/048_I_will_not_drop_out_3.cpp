@@ -3,40 +3,40 @@ using namespace std;
 
 using ll = long long;
 using ld = long double;
-using pii = pair<int, int>;
+using ull = unsigned long long;
 using pll = pair<ll, ll>;
 using pld = pair<ld, ld>;
-const int INF_INT = 2e9;
-const ll INF_LL = 2e18;
-const int MOD = 998244353;
-// const int MOD = 1000000007;
-const int dx[] = {1, 0, -1, 0};
-const int dy[] = {0, 1, 0, -1};
+using vll = vector<ll>;
+using vvll = vector<vll>;
+using Graph = vvll;
+template<typename T> istream& operator>>(istream& is, vector<T>& v) { for (T& x : v) is >> x; return is; }
+template <typename T> using min_pq = priority_queue<T, vector<T>, greater<T>>;
+const ll INF = 2e18;
+// const ll MOD = 998244353;
+// const ll MOD = 1000000007;
 #define rep(i, n) for (ll i = 0; i < (ll)(n); ++i)
 #define rep1(i, n) for (ll i = 1; i <= (ll)(n); ++i)
-#define rrep(i, n) for (ll i = (ll)(n)-1; i >= 0; --i)
+#define rrep(i, n) for (ll i = (ll)(n) - 1; i >= 0; --i)
 #define all(v) (v).begin(), (v).end()
 #define rall(v) (v).rbegin(), (v).rend()
 #define sz(x) ((ll)(x).size())
 #define nl "\n"
-#define yes_no(ans) cout << ((ans) ? "Yes" : "No") << nl;
-#define YES_NO(ans) cout << ((ans) ? "YES" : "NO") << nl;
+#define pcnt(n) __builtin_popcountll(ll(n))
+#define yes(ans) cout << ((ans) ? "Yes" : "No") << nl;
+#define YES(ans) cout << ((ans) ? "YES" : "NO") << nl;
 template<class T> bool chmax(T& a, const T& b) { if (a < b) { a = b; return true; } return false; }
 template<class T> bool chmin(T& a, const T& b) { if (a > b) { a = b; return true; } return false; }
 
 // #define DEBUG
 #ifdef DEBUG
+    template<typename T, typename U> ostream& operator<<(ostream& os, const pair<T, U>& p) { return os << "(" << p.first << ", " << p.second << ")"; }
     #define debug(x) cerr << #x << ": " << (x) << endl
-    #define debug_vec(vec) { cerr << #vec << ": "; for(const auto& elem : vec) cerr << elem << " "; cerr << endl; }
-    #define debug_pair(p) cerr << #p << ": (" << (p).first << ", " << (p).second << ")" << endl
-    #define debug_2d_vec(vec2d) { cerr << #vec2d << ":" << endl; for(const auto& row : vec2d) { cerr << "  "; for(const auto& elem : row) cerr << elem << " "; cerr << endl; } }
-    #define debug_map(m) { cerr << #m << ": "; for(const auto& [key, val] : m) cerr << "(" << key << ":" << val << ") "; cerr << endl; }
+    #define debug_all(v) { cerr << #v << ": { "; for(auto& e : v) cerr << e << " "; cerr << "}" << endl; }
+    #define debug_2d(v) { cerr << #v << ":" << endl; for(auto& r : v) { cerr << "  "; for(auto& e : r) cerr << e << " "; cerr << endl; } }
 #else
     #define debug(x)
-    #define debug_vec(vec)
-    #define debug_pair(p)
-    #define debug_2d_vec(vec2d)
-    #define debug_map(m)
+    #define debug_all(v)
+    #define debug_2d(v)
 #endif
 
 void setup_fast_io() {
@@ -45,23 +45,38 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-// using Graph = vector<vector<ll>>;
-// using Graph = vector<vector<Edge>>;
+struct S {
+    ll v;
+    ll idx;
+    bool canadd;
+
+    bool operator<(const S& other) const {
+        return v < other.v;
+    }
+};
+
 
 int main() {
     setup_fast_io();
 
-    ll n, k;
-    cin >> n >> k;
-    priority_queue<pll> pq;
+    ll n, k; cin >> n >> k;
+    vll a(n), b(n);
+    priority_queue<S> pq;
     rep(i, n) {
-        ll a, b;
-        cin >> a >> b;
-        pq.push({a, 2);
-        pq.push({b*2, 2});
+        cin >> a[i] >> b[i];
+        a[i] -= b[i];
+        pq.push({b[i], i, true});
     }
 
-
+    ll ans = 0;
+    while (k--) {
+        auto [v, idx, f] = pq.top();
+        debug(v);
+        pq.pop();
+        ans += v;
+        if (f) pq.push({a[idx], idx, false});
+    }
+    cout << ans << nl;
 
     return 0;
 }

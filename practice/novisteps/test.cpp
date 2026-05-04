@@ -192,6 +192,5 @@ int main() {
     setup_fast_io();
 
     
-
     return 0;
 }
