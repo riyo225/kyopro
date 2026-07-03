@@ -1,8 +1,10 @@
 vector<ll> dist(n, -1);
+vector<ll> pre(n, -1);
 queue<ll> que;
 
-dist[0] = 0;
-que.push(0);
+ll s = 0;
+dist[s] = 0;
+que.push(s);
 
 while (!que.empty()) {
     ll v = que.front();
@@ -12,6 +14,7 @@ while (!que.empty()) {
         if (dist[nv] != -1) continue;
 
         dist[nv] = dist[v] + 1;
+        pre[nv] = v;
         que.push(nv);
     }
 }

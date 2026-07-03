@@ -1,13 +1,14 @@
-// [prefix: topological]
+// [prefix: toposort]
 
-struct TopologicalSort {
+struct TopoSort {
     bool is_dag, is_unique;
     vector<ll> res;
+    vector<ll> indeg;
 
     // flag = true: priority_queue, flag = false: queue
-    TopologicalSort (const Graph& G, bool flag = false) {
+    TopoSort (const Graph& G, bool flag = false) {
         ll n = G.size();
-        vector<ll> indeg(n, 0);
+        indeg.assign(n, 0);
         
         for (ll v = 0; v < n; v++) {
             for (ll nv : G[v]) {

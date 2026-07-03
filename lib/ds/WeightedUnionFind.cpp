@@ -1,23 +1,42 @@
-// [prefix: unionfind, uf]
+// [prefix: wunionfind, wuf]
 
-struct UnionFind {
+template <typename T>
+struct WeightedUnionFind {
     ll n, group_count;
     vector<ll> par;
+    vector<T> diff_weight;
 
-    UnionFind(ll n) : n(n), par(n, -1), group_count(n) {}
+    WeightedUnionFind(ll n) : n(n), par(n, -1), group_count(n), diff_weight(n, 0) {}
 
     ll root(ll x) {
         if (par[x] < 0) return x;
-        return par[x] = root(par[x]);
+        ll r = root(par[x]);
+        diff_weight[x] += diff_weight[par[x]];
+        return par[x] = r;
     }
 
-    bool unite(ll x, ll y) {
+    T weight(ll x) {
+        root(x);
+        return diff_weight[x];
+    }
+
+    T diff(ll x, ll y) {
+        return weight(y) - weight(x);
+    }
+
+    bool unite(ll x, ll y, T w) {
+        w += weight(x);
+        w -= weight(y);
         x = root(x);
         y = root(y);
         if (x == y) return false;
-        if (par[x] > par[y]) swap(x, y);
+        if (par[x] > par[y]) {
+            swap(x, y);
+            w = -w;
+        }
         par[x] += par[y];
         par[y] = x;
+        diff_weight[y] = w;
         group_count--;
         return true;
     }

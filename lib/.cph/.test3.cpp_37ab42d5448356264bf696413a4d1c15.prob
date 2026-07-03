@@ -1,0 +1,1 @@
+{"name":"Local: test3","url":"/home/rmaejp/kyopro/lib/test3.cpp","tests":[{"id":1782970491603,"input":"if_x_then_if_y_then_2_else_7_else_if_y_then_1_else_8","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"/home/rmaejp/kyopro/lib/test3.cpp","group":"local","local":true}

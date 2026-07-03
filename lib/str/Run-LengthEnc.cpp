@@ -3,11 +3,14 @@
 template <typename T>
 struct RLE {
     using V = typename T::value_type;
-
-    struct Node { V val; ll len; };
+    struct Node {
+        V val;
+        ll len;
+        ll start;
+    };
 
     vector<Node> blocks;
-    vector<ll> prefix_len;
+    ll total
 
     RLE(const T& s) {
         prefix_len.push_back(0);

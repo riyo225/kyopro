@@ -10,4 +10,5 @@ auto dfs = [&](auto self, ll v) -> void {
     }
 };
 
-dfs(dfs, 0);
+ll s = 0;
+dfs(dfs, s);

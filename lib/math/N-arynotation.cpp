@@ -24,9 +24,14 @@ auto base2long = [&](string s, ll base) -> ll {
 auto long2base = [&](ll val, ll base) -> string {
     if (val == 0) return "0";
     string res = "";
-    while (val > 0) {
-        res += l2c(val % base);
+    while (val != 0) {
+        ll rem = val % base;
         val /= base;
+        if (rem < 0) {
+            rem += abs(base);
+            val += 1;
+        }
+        res += l2c(rem);
     }
     reverse(all(res));
     return res;

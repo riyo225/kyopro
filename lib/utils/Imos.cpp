@@ -8,7 +8,7 @@ struct Imos {
 
     // [l, r) に v を加算
     void add(ll l, ll r, T v) {
-        if (l < 0 || r > N || l >= r) return;
+        if (l < 0 || r > n || l >= r) return;
         data[l] += v;
         data[r] -= v;
     }

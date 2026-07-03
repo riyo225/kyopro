@@ -1,6 +1,9 @@
 // [prefix: dijkstra]
 
-vector<ll> dijkstra(const Graph& G, ll s) {
+struct Edge { ll to; ll cost; };
+using WGraph = vector<vector<Edge>>;
+
+vector<ll> dijkstra(const WGraph& G, ll s) {
     vector<ll> dist(G.size(), INF);
     using P = pair<ll, ll>;
     priority_queue<P, vector<P>, greater<P>> pq;

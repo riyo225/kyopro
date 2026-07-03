@@ -1,11 +1,11 @@
-// [prefix: bit]
+// [prefix: bit, fenwicktree]
 
 template <typename T>
-struct FenwickTree {
+struct BIT {
     ll n;
     vector<T> tree;
 
-    FenwickTree(ll n) : n(n), tree(n + 1, 0) {}
+    BIT(ll n) : n(n), tree(n + 1, 0) {}
 
     void build(const vector<T>& a) {
         for (ll i = 0; i < n; i++) tree[i + 1] = a[i];
@@ -37,4 +37,18 @@ struct FenwickTree {
     T get(ll i) {
         return query(i + 1) - query(i);
     }
-}
+
+    ll lower_bound(T w) {
+        if (w <= 0) return 0;
+        ll x = 0;
+        ll k = 1;
+        while (k <= n) k *= 2;
+        for (; k > 0; k /= 2) {
+            if (x + k <= n && tree[x + k] < w) {
+                w -= tree[x + k];
+                x += k;
+            }
+        }
+        return x;
+    }
+};

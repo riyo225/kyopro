@@ -1,4 +1,4 @@
-// [prefix: nextocc]
+// [prefix: nextoccurrence]
 
 struct NextOccurrence {
     ll n;

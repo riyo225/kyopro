@@ -26,13 +26,27 @@ struct Doubling {
         }
     }
 
-    ll query(ll v, ll k) {
-        for (ll i = 0; i < LOG; i++) {
-            if ((k >> i) & 1LL) {
-                v = dp[i][v];
+    // v からぴったり k 回ジャンプした先の頂点を返す
+    ll jump_exact(ll v, ll x) {
+        for (ll k = 0; k < LOG; k++) {
+            if ((x >> k) & 1LL) {
+                v = dp[k][v];
                 if (v == -1) break;
             }
         }
         return v;
+    }
+
+    // 限界までジャンプをし、{ 回数, 到達地点 } を返す
+    pll jump_limit(ll start, ll limit) {
+        ll cur = start;
+        ll ans = 0;
+        for (int k = LOG - 1; k >= 0; k--) {
+            if (dp[k][cur] != -1 && dp[k][cur] <= limit) {
+                ans += (1LL << k);
+                cur = dp[k][cur];
+            }
+        }
+        return {ans, cur};
     }
 };

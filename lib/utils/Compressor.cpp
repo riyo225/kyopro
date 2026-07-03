@@ -1,4 +1,5 @@
 // [prefix: compressor]
+
 // Compressor<type> comp;
 template <typename T>
 struct Compressor {
