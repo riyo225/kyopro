@@ -45,53 +45,49 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    ll n, q; cin >> n >> q;
+    string s; cin >> s;
+    ll cnt = 0;
+    for (int i = 0; i <= n-3; i++) {
+        if (s.substr(i, 3) == "ABC") {
+            cnt++;
         }
     }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
+    while (q--) {
+        ll x; char c; cin >> x >> c; x--;
+        if (c == s[x]) {
+            cout << cnt << nl;
+            continue;
         }
-    }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
+        if (s[x] == 'A') {
+            if (x <= n-3 && s.substr(x, 3) == "ABC") cnt--;
         }
-    }
-    cout << nl;
+        else if (s[x] == 'B') {
+            if (x <= n-2 && s.substr(x-1, 3) == "ABC") cnt--;
+        }
+        else if (s[x] == 'C') {
+            if (x <= n-1 && s.substr(x-2, 3) == "ABC") cnt--;
+        }
 
-    
+        s[x] = c;
+
+        if (s[x] == 'A') {
+            if (x <= n-3 && s.substr(x, 3) == "ABC") cnt++;
+        }
+        else if (s[x] == 'B') {
+            if (x <= n-2 && s.substr(x-1, 3) == "ABC") cnt++;
+        }
+        else if (s[x] == 'C') {
+            if (x <= n-1 && s.substr(x-2, 3) == "ABC") cnt++;
+        }
+
+        cout << cnt << nl;
+    }
 
     return 0;
 }

@@ -45,53 +45,75 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
+// Doubling db(next_states);
+struct Doubling {
+    const ll LOG = 60;
     ll n;
-    Graph rG;
-}
+    vector<vector<ll>> dp;
 
+    Doubling(const vector<ll>& next_states) {
+        n = next_states.size();
+        dp.assign(LOG, vector<ll> (n, -1));
 
-int main() {
-    setup_fast_io();
-
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+        for (ll i = 0; i < n; i++) {
+            dp[0][i] = next_states[i];
         }
-    }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+        for (ll k = 0; k < LOG - 1; k++) {
+            for (ll v = 0; v < n; v++) {
+                if (dp[k][v] == -1) {
+                    dp[k + 1][v] = -1;
+                }
+                else {
+                    dp[k + 1][v] = dp[k][dp[k][v]];
+                }
             }
         }
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
+    ll query(ll l, ll r) {
+        ll cur = l;
+        ll ans = 0;
+        for (int k = LOG-1; k >= 0; k--) {
+            if (dp[k][cur] <= r + 1) {
+                ans += (1LL << k);
+                cur = dp[k][cur];
+            }
         }
+        return ans;
     }
-    cout << nl;
+};
 
-    
+int main() {
+    setup_fast_io();
+
+    ll n, m, q; cin >> n >> m >> q;
+    vll a(m), b(m);
+    rep(i, m) {
+        cin >> a[i] >> b[i];
+    }
+
+    ll MAX = n + 2;
+    vector<ll> suff_min(n+3, MAX);
+    rep(i, m) {
+        chmin(suff_min[a[i]], b[i] + 1);
+    }
+
+    ll M = MAX;
+    for (int i = n+2; i >= 0; i--) {
+        chmin(M, suff_min[i]);
+        suff_min[i] = M;
+    }
+
+    debug_all(suff_min);
+
+    Doubling db(suff_min);
+
+    while (q--) {
+        ll l, r; cin >> l >> r;
+        cout << db.query(l, r) << nl;
+    }
+
 
     return 0;
 }

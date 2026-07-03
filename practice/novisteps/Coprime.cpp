@@ -45,53 +45,68 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
+// 前計算 O(NloglogN)
+// 素因数分解 O(logN)
+struct SPF {
+    vector<ll> spf;
+
+    SPF(ll n) : spf(n + 1) {
+        for (ll i = 0; i <= n; i++) spf[i] = i;
+        for (ll i = 2; i * i <= n; i++) {
+            if (spf[i] == i) {
+                for (ll j = i * i; j <= n; j += i) {
+                    if (spf[j] == j) spf[j] = i;
+                }
+            }
+        }
+    }
+
+    bool is_prime(ll x) {
+        if (x <= 1) return false;
+        return spf[x] == x;
+    }
+
+    map<ll, ll> factorize(ll x) {
+        map<ll, ll> res;
+        while (x > 1) {
+            res[spf[x]]++;
+            x /= spf[x];
+        }
+        return res;
+    }
+};
 
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
+    ll n; cin >> n;
+    vll a(n); cin >> a;
+    SPF spf(1000000);
+    map<ll, ll> mp;
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+        auto res = spf.factorize(a[i]);
+        debug_all(res);
+        for (auto [k, v] : res) {
+            mp[k]++;
         }
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
+    bool f1 = true;
+    bool f2 = true;
+    for (auto [k, v] : mp) {
+        if (v == n) {
+            f2 = false;
+        }
+        if (v != 1) {
+            f1 = false;
         }
     }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
+    if (f1) cout << "pairwise coprime" << nl;
+    else {
+        if (f2) cout << "setwise coprime" << nl;
+        else cout << "not coprime" << nl;
     }
-    cout << nl;
-
-    
 
     return 0;
 }

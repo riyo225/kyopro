@@ -39,59 +39,27 @@ template<class T> bool chmin(T& a, const T& b) { if (a > b) { a = b; return true
     #define debug_2d(v)
 #endif
 
-void setup_fast_io() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    cout << fixed << setprecision(15);
-}
-
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
-
 int main() {
-    setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    ll n; cin >> n;
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    vector<ll> use(2*n+2, false);
+    use[0] = true;
+    ll cnt = 0;
+    while (cnt < 2 * n + 1) {
+        for (int i = 1; i <= 2 * n + 1; i++) {
+            if (!use[i]) {
+                cout << i << endl;
+                use[i] = true;
+                cnt++;
+                break;
             }
         }
+        if (cnt >= 2 * n + 1) break;
+        ll x; cin >> x; use[x] = true;
+        cnt++;
     }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
+    cout << 0 << nl;
 
     return 0;
 }

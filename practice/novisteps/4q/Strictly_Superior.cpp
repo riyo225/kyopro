@@ -45,53 +45,44 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
     ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
+    vll p(n), c(n);
+    vvll f(n);
+    vector<vector<bool>> have(n, vector<bool> (m, false));
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+        cin >> p[i] >> c[i];
+        f[i].resize(c[i]);
+        rep(j, c[i]) {
+            cin >> f[i][j];
+            f[i][j]--;
+            have[i][f[i][j]] = true;
         }
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    bool ans = false;
+    rep(i, n) {
+        rep(j, n) {
+            if (i == j) continue;
+            bool flag = true;
+            if (p[i] < p[j]) flag = false;
+            for (int k = 0; k < c[i]; k++) {
+                if (!have[j][f[i][k]]) {
+                    flag = false;
+                }
+            }
+            if (flag) {
+                if (p[i] > p[j] || c[j] > c[i]) {
+                    ans = true;
+                }
             }
         }
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
+    yes(ans);
 
     return 0;
 }

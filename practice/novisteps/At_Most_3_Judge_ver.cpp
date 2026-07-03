@@ -45,53 +45,31 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
+    ll n, w; cin >> n >> w;
+    vll a(n); cin >> a;
+
+    vector<bool> good(3000000+1, false);
+
+    rep(i, n) good[a[i]] = true;
+    rep(i, n) rep(j, n) {
+        if (i == j) continue;
+        good[a[i]+a[j]] = true;
     }
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
+    rep(i, n) rep(j, n) rep(k, n) {
+        if (i == j || j == k || i == k) continue;
+        good[a[i]+a[j]+a[k]] = true;
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
+    ll ans = 0;
+    rep(i, w+1) {
+        if (good[i]) ans++;
     }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
+    cout << ans << nl;
 
     return 0;
 }

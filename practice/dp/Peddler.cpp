@@ -45,53 +45,100 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
+struct TopologicalSort {
+    bool is_dag, is_unique;
+    vector<ll> res;
+
+    // flag = true: priority_queue, flag = false: queue
+    TopologicalSort (const Graph& G, bool flag = false) {
+        ll n = G.size();
+        vector<ll> indeg(n, 0);
+        
+        for (ll v = 0; v < n; v++) {
+            for (ll nv : G[v]) {
+                indeg[nv]++;
+            }
+        }
+
+        is_unique = true;
+
+        if (flag) {
+            priority_queue<ll, vector<ll>, greater<ll>> pq;
+            for (ll i = 0; i < n; i++) {
+                if (indeg[i] == 0) pq.push(i);
+            }
+
+            while (!pq.empty()) {
+                if (pq.size() > 1) is_unique = false;
+
+                ll v = pq.top();
+                res.push_back(v);
+                pq.pop();
+
+                for (ll nv : G[v]) {
+                    indeg[nv]--;
+                    if (indeg[nv] == 0) pq.push(nv);
+                }
+            }
+            
+        }
+        else {
+            queue<ll> que;
+            for (ll i = 0; i < n; i++) {
+                if (indeg[i] == 0) que.push(i);
+            }
+
+            while (!que.empty()) {
+                if (que.size() > 1) is_unique = false;
+
+                ll v = que.front();
+                res.push_back(v);
+                que.pop();
+
+                for (ll nv : G[v]) {
+                    indeg[nv]--;
+                    if (indeg[nv] == 0) que.push(nv);
+                }
+            }
+        }
+
+        is_dag = (res.size() == n);
+        if (!is_dag) res.clear();
+    }
+};
 
 
 int main() {
     setup_fast_io();
 
     ll n, m; cin >> n >> m;
+    vll a(n); cin >> a;
     Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
     rep(i, m) {
         ll u, v; cin >> u >> v; u--; v--;
         graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
     }
 
-    queue<ll> que;
+    TopologicalSort tp(graph);
+    auto res = tp.res;
+
+    vector<ll> dp(n, INF);
+    vector<ll> min_(n, INF);
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+        min_[i] = a[i];
+    }
+    for (ll v : res) {
+        for (ll nv : graph[v]) {
+            chmin(dp[nv], min_[v]);
+            chmin(min_[nv], min_[v]);
         }
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
-    }
-
+    ll ans = -INF;
     rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
+        chmax(ans, a[i] - dp[i]);
     }
-    cout << nl;
-
-    
+    cout << ans << nl;
 
     return 0;
 }

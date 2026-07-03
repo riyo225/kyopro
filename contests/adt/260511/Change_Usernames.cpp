@@ -45,53 +45,49 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    ll n; cin >> n;
+    map<string, vector<string>> graph, rgraph;
+    map<string, ll> outdeg, indeg;
 
-    queue<ll> que;
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
+        string s, t; cin >> s >> t;
+        outdeg[s]++;
+        if (!outdeg.count(t)) outdeg[t] = 0;
+        indeg[t]++;
+        graph[s].push_back(t);
+        rgraph[t].push_back(s);
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
+    bool ans = true;
+    for (auto [k, v] : indeg) {
+        if (v >= 2) ans = false;
+    }
 
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    if (ans) {
+        min_pq<string> pq;
+        for (auto [k, v] : outdeg) {
+            if (v == 0) pq.push(k);
+        }
+
+        while (!pq.empty()) {
+            string v = pq.top();
+            pq.pop();
+
+            for (string nv : rgraph[v]) {
+                outdeg[nv]--;
+                if (outdeg[nv] == 0) pq.push(nv);
             }
         }
-    }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
+        for (auto [k, v] : outdeg) {
+            if (v != 0) ans = false;
         }
     }
-    cout << nl;
 
-    
-
+    yes(ans);
     return 0;
 }

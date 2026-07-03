@@ -45,53 +45,38 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    ll n; cin >> n;
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    vector<vector<ll>> memo(n+1, vector<ll> {});
+
+    auto dfs = [&](auto self, ll v) -> vector<ll> {
+        // memo の確認
+        if (memo[v] != vll {}) return memo[v];
+
+        if (v == 1) return memo[v] = {1};
+
+        // 更新値の計算
+        auto vec = self(self, v-1);
+        vector<ll> res;
+        rep(i, sz(vec)) {
+            res.push_back(vec[i]);
         }
-    }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
+        res.push_back(v);
+        rep(i, sz(vec)) {
+            res.push_back(vec[i]);
         }
-    }
+        // memo の更新
+        return memo[v] = res;
+    };
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
+    auto ans = dfs(dfs, n);
+    rep(i, sz(ans)) {
+        cout << ans[i] << " ";
     }
     cout << nl;
-
-    
-
     return 0;
 }

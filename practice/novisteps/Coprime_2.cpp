@@ -31,7 +31,7 @@ template<class T> bool chmin(T& a, const T& b) { if (a > b) { a = b; return true
 #ifdef DEBUG
     template<typename T, typename U> ostream& operator<<(ostream& os, const pair<T, U>& p) { return os << "(" << p.first << ", " << p.second << ")"; }
     #define debug(x) cerr << #x << ": " << (x) << endl
-    #define debug_all(v) { cerr << #v << ": { "; for(auto& e : v) cerr << e << " "; cerr << "}" << endl; }
+    #define debug_all(v) { cerr << #v << ": { "; for(auto&& e : v) cerr << e << " "; cerr << "}" << endl; }
     #define debug_2d(v) { cerr << #v << ":" << endl; for(auto& r : v) { cerr << "  "; for(auto& e : r) cerr << e << " "; cerr << endl; } }
 #else
     #define debug(x)
@@ -45,53 +45,67 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
+// 前計算 O(NloglogN)
+// 素因数分解 O(logN)
+struct SPF {
+    vector<ll> spf;
+
+    SPF(ll n) : spf(n + 1) {
+        for (ll i = 0; i <= n; i++) spf[i] = i;
+        for (ll i = 2; i * i <= n; i++) {
+            if (spf[i] == i) {
+                for (ll j = i * i; j <= n; j += i) {
+                    if (spf[j] == j) spf[j] = i;
+                }
+            }
+        }
+    }
+
+    bool is_prime(ll x) {
+        if (x <= 1) return false;
+        return spf[x] == x;
+    }
+
+    map<ll, ll> factorize(ll x) {
+        map<ll, ll> res;
+        while (x > 1) {
+            res[spf[x]]++;
+            x /= spf[x];
+        }
+        return res;
+    }
+};
 
 
 int main() {
     setup_fast_io();
 
     ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    vll a(n); cin >> a;
 
-    queue<ll> que;
+    SPF spf(100000);
+    set<ll> st;
+    vector<bool> ans(m+1, true);
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+        for (auto [k, v] : spf.factorize(a[i])) {
+            st.insert(k);
         }
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
+    for (ll x : st) {
+        for (int i = 1; i * x <= m; i++) {
+            ans[i * x] = false; 
         }
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
+    vll res;
+    for (int i = 1; i <= m; i++) {
+        if (ans[i]) res.push_back(i);
     }
-    cout << nl;
-
-    
+    cout << res.size() << nl;
+    for (ll x : res) {
+        cout << x << nl;
+    }
 
     return 0;
 }

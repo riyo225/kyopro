@@ -45,53 +45,62 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
     ll n, m; cin >> n >> m;
     Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
     rep(i, m) {
         ll u, v; cin >> u >> v; u--; v--;
         graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
+        graph[v].push_back(u);
     }
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    vector<int> color(n, 0);
+    bool has_cycle = false;
+    auto dfs = [&](auto self, ll v) -> void {
+        color[v] = 1;
+    
+        for (auto nv : graph[v]) {
+            if (color[nv] == 1) {
+                has_cycle = true;
+                return;
+            }
+            if (color[nv] == 0) {
+                self(self, nv);
+            }
         }
-    }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
+    
+        color[v] = 2;
+    };
+    
+    dfs(dfs, 0);
+    if (has_cycle) {
+        vector<ll> dist(n, -1);
+        vector<ll> pre(n, -1);
+        queue<ll> que;
+        
+        ll s = 0;
+        dist[s] = 0;
+        que.push(s);
+        
+        while (!que.empty()) {
+            ll v = que.front();
+            que.pop();
+        
+            for (ll nv : graph[v]) {
+                if (dist[nv] != -1) continue;
+        
+                dist[nv] = dist[v] + 1;
+                pre[nv] = v;
                 que.push(nv);
             }
         }
     }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
+    else {
+        cout << -1 << nl;
     }
-    cout << nl;
-
-    
 
     return 0;
 }

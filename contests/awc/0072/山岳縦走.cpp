@@ -45,53 +45,97 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
+struct TopoSort {
+    bool is_dag, is_unique;
+    vector<ll> res;
+    vector<ll> indeg;
 
+    // flag = true: priority_queue, flag = false: queue
+    TopoSort (const Graph& G, bool flag = false) {
+        ll n = G.size();
+        indeg.assign(n, 0);
+        
+        for (ll v = 0; v < n; v++) {
+            for (ll nv : G[v]) {
+                indeg[nv]++;
+            }
+        }
+
+        is_unique = true;
+
+        if (flag) {
+            priority_queue<ll, vector<ll>, greater<ll>> pq;
+            for (ll i = 0; i < n; i++) {
+                if (indeg[i] == 0) pq.push(i);
+            }
+
+            while (!pq.empty()) {
+                if (pq.size() > 1) is_unique = false;
+
+                ll v = pq.top();
+                res.push_back(v);
+                pq.pop();
+
+                for (ll nv : G[v]) {
+                    indeg[nv]--;
+                    if (indeg[nv] == 0) pq.push(nv);
+                }
+            }
+            
+        }
+        else {
+            queue<ll> que;
+            for (ll i = 0; i < n; i++) {
+                if (indeg[i] == 0) que.push(i);
+            }
+
+            while (!que.empty()) {
+                if (que.size() > 1) is_unique = false;
+
+                ll v = que.front();
+                res.push_back(v);
+                que.pop();
+
+                for (ll nv : G[v]) {
+                    indeg[nv]--;
+                    if (indeg[nv] == 0) que.push(nv);
+                }
+            }
+        }
+
+        is_dag = (res.size() == n);
+        if (!is_dag) res.clear();
+    }
+};
 
 int main() {
     setup_fast_io();
 
     ll n, m; cin >> n >> m;
+    vll p(n); cin >> p;
     Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
     rep(i, m) {
         ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
+        if (p[v] > p[u]) graph[u].push_back(v);
     }
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
+    TopoSort tp(graph);
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    vector<ll> dp(n+1, -INF);
+    dp[0] = 1;
+    for (auto v : tp.res) {
+        for (auto nv : graph[v]) {
+            if (p[nv] > p[v]) {
+                chmax(dp[nv], dp[v] + 1);
             }
         }
     }
 
+    ll ans = 0;
     rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
+        chmax(ans, dp[i]);
     }
-    cout << nl;
-
-    
+    cout << ans << nl;
 
     return 0;
 }

@@ -45,53 +45,39 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
-
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
-    }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
+    ll n; cin >> n;
+    vll a(n); cin >> a;
     
+    ll ans1 = 0, ans2 = 0;
+    ll sum1 = 0, sum2 = 0;
+    rep(i, n) {
+        sum1 += a[i];
+        if (i % 2 == 0 && sum1 <= 0) {
+            ans1 += abs(1 - sum1);
+            sum1 += abs(1 - sum1);
+        }
+        else if (i % 2 == 1 && sum1 >= 0) {
+            ans1 += abs(-1 - sum1);
+            sum1 += abs(-1 - sum1);
+        }
+        cout << sum1 << nl;
+    }
+    rep(i, n) {
+        sum2 += a[i];
+        if (i % 2 == 1 && sum2 <= 0) {
+            ans2 += abs(1 - sum2);
+            sum2 += abs(1 - sum2);
+        }
+        else if (i % 2 == 0 && sum2 >= 0) {
+            ans2 += abs(-1 - sum2);
+            sum2 += abs(-1 - sum2);
+        }
+    }
+
+    cout << ans1 << " " << ans2 << nl;
 
     return 0;
 }

@@ -45,53 +45,64 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
+template <typename T>
+struct Imos {
     ll n;
-    Graph rG;
-}
+    vector<T> data;
+    Imos(ll n) : n(n), data(n + 1, T(0)) {}
 
+    // [l, r) に v を加算
+    void add(ll l, ll r, T v) {
+        if (l < 0 || r > n || l >= r) return;
+        data[l] += v;
+        data[r] -= v;
+    }
+
+    vector<T> build() {
+        vector<T> res(n);
+        T cur = T(0);
+        for (int i = 0; i < n; i++) {
+            cur += data[i];
+            res[i] = cur;
+        }
+        return res;
+    }
+};
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
+    ll n; cin >> n;
+    vll a(n); cin >> a;
+    ll m = 0;
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
+        chmax(m, a[i]);
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
-    }
-
+    Imos<ll> imos(m+5);
     rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
+        imos.add(0, a[i], 1);
+    }
+
+    auto res = imos.build();
+    rep(i, m+5) {
+        if (res[i] >= 10) {
+            res[i+1] += (res[i] / 10);
+            res[i] %= 10;
         }
     }
-    cout << nl;
 
-    
+    string ans = "";
+    rep(i, m+5) {
+        char c = '0' + res[i];
+        ans.push_back(c);
+    }
+    reverse(all(ans));
+    ll idx = 0;
+    while (ans[idx] == '0') idx++;
+    ans.erase(0, idx);
+
+    cout << ans << nl;
 
     return 0;
 }

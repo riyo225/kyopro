@@ -45,53 +45,44 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
+    ll n; cin >> n;
+    string s; cin >> s;
+    vector<ll> S(n);
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
+        if (s[i] == 'R') S[i] = 0;
+        else if (s[i] == 'P') S[i] = 1;
+        else S[i] = 2;
+    }
+    vector<ll> T(n);
+    rep(i, n) {
+        if (s[i] == 'R') T[i] = 1;
+        else if (s[i] == 'P') T[i] = 2;
+        else T[i] = 0;
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    vector<vector<ll>> dp(n+1, vector<ll> (3, -INF));
+    dp[0][0] = 0;
+    dp[0][1] = 0;
+    dp[0][2] = 0;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j < 3; j++) {
+            for (int nj = 0; nj < 3; nj++) {
+                if (j == nj) continue;
+                if (S[i-1] == nj) chmax(dp[i][nj], dp[i-1][j]);
+                if (T[i-1] == nj) chmax(dp[i][nj], dp[i-1][j] + 1);
             }
         }
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
+    ll ans = -INF;
+    rep(i, 3) {
+        chmax(ans, dp[n][i]);
     }
-    cout << nl;
-
-    
+    cout << ans << nl;
 
     return 0;
 }

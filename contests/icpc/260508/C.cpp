@@ -45,53 +45,91 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
+// 素数判定
+bool is_prime(ll n) {
+    if (n <= 1) return false;
+    for (ll i = 2; i * i <= n; i++) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}
+
+// 素因数分解
+map<ll, ll> prime_factorize(ll n) {
+    // {素因数, 指数}
+    map<ll, ll> res;
+    for (ll i = 2; i * i <= n; i++) {
+        while(n % i == 0) { res[i]++; n /= i; }
+    }
+    if (n > 1) res[n]++;
+    return res;
+}
+
+// 約数列挙
+vector<ll> get_divisors(ll n) {
+    vector<ll> res;
+    for (ll i = 1; i * i <= n; i++) {
+        if (n % i == 0) {
+            res.push_back(i);
+            if (i * i != n) res.push_back(n / i);
+        }
+    }
+    sort(res.begin(), res.end());
+    return res;
+}
+
+#include <bits/stdc++.h>
+using namespace std;
+
+// 素因数分解
+vector<long long> lpf_array;
+
+// 最小素因数計算
+// O(N log log N)
+void sieve_for_lpf(long long N) {
+    lpf_array.assign(N + 1, 0);
+
+    if (N >= 0) lpf_array[0] = 0;
+    if (N >= 1) lpf_array[1] = 1;
+
+    for (long long i = 2; i <= N; i++) {
+        lpf_array[i] = i;
+    }
+
+    for (long long i = 2; i <= N; i++) {
+        if (lpf_array[i] != i) continue;
+        
+        for (long long j = i * i; j <= N; j += i) {
+            if (lpf_array[j] == j) {
+                lpf_array[j] = i;
+            }
+        }
+    }
 }
 
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    while (true) {
+        ll b; cin >> b;
+        if (b == 0) break;
+        b *= 2;
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
+        auto res = get_divisors(b);
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+        ll n = sz(res);
+        ll max_ = -INF;
+        pll ans;
+        rep(i, (n+1)/2) {
+            ll x = res[i];
+            ll y = res[n-1-i];
+            if ((y - x + 1) % 2 == 0 && chmax(max_, x)) {
+                ans = {(y - x + 1) / 2, x};
             }
         }
+        cout << ans.first << " " << ans.second << nl;
     }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
 
     return 0;
 }

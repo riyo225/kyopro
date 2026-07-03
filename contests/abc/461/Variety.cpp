@@ -31,7 +31,7 @@ template<class T> bool chmin(T& a, const T& b) { if (a > b) { a = b; return true
 #ifdef DEBUG
     template<typename T, typename U> ostream& operator<<(ostream& os, const pair<T, U>& p) { return os << "(" << p.first << ", " << p.second << ")"; }
     #define debug(x) cerr << #x << ": " << (x) << endl
-    #define debug_all(v) { cerr << #v << ": { "; for(auto& e : v) cerr << e << " "; cerr << "}" << endl; }
+    #define debug_all(v) { cerr << #v << ": { "; for(auto&& e : v) cerr << e << " "; cerr << "}" << endl; }
     #define debug_2d(v) { cerr << #v << ":" << endl; for(auto& r : v) { cerr << "  "; for(auto& e : r) cerr << e << " "; cerr << endl; } }
 #else
     #define debug(x)
@@ -45,53 +45,56 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
+    ll n, k, m; cin >> n >> k >> m;
+    vll c(n), v(n);
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
+        cin >> c[i] >> v[i];
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    vector<bool> use(n, false);
+    map<ll, pll> mp;
+    rep(i, n) {
+        if (!mp.count(c[i])) {
+            mp[c[i]].first = v[i];
+            mp[c[i]].second = i;
+        }
+        else {
+            if (chmax(mp[c[i]].first, v[i])) {
+                mp[c[i]].second = i;
             }
         }
     }
 
+    priority_queue<pll> pq;
+    for (auto [c, v] : mp) {
+        pq.push(v);
+    }
+
+    ll ans = 0;
+    k -= m;
+    while (m--) {
+        auto p = pq.top();
+        pq.pop();
+        ans += p.first;
+        use[p.second] = true;
+    }
+
+    priority_queue<ll> q;
     rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
+        if (!use[i]) {
+            q.push(v[i]);
         }
     }
-    cout << nl;
-
-    
+    while (k--) {
+        auto p = q.top();
+        q.pop();
+        ans += p;
+    }
+    cout << ans << nl;
 
     return 0;
 }

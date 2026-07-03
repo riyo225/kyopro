@@ -1,0 +1,1 @@
+{"name":"Local: DailyTemperatures","url":"/home/rmaejp/kyopro/practice/novisteps/DailyTemperatures.cpp","tests":[{"id":1778161963785,"input":"8\n73 74 75 71 69 72 76 73","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"/home/rmaejp/kyopro/practice/novisteps/DailyTemperatures.cpp","group":"local","local":true}

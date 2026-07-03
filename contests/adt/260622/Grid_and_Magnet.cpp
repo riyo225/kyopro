@@ -45,53 +45,47 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
+    ll h, w; cin >> h >> w;
+    vector<vector<char>> vec(h, vector<char> (w));
+    rep(i, h) rep(j, w) {
+        cin >> vec[i][j];
     }
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
+    const ll dr[] = {1, 0, -1, 0}; const ll dc[] = {0, 1, 0, -1};
+    string DIRS = "DRUL";
+    const ll dr8[] = {1, 1, 0, -1, -1, -1, 0, 1}; const ll dc8[] = {0, 1, 1, 1, 0, -1, -1, -1};
+    auto is_inside = [&](ll r, ll c) { return 0 <= r && r < h && 0 <= c && c < w; };
+    auto is_outside = [&](ll r, ll c) { return r < 0 || h <= r || c < 0 || w <= c; };
+    auto get_id = [&](ll r, ll c) { return r * w + c; };
+    auto get_2d = [&](ll id)  { return make_pair(id / w, id % w); };
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
+    vector<vector<ll>> memo(h, vector<ll> (w, 0));
 
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
-    }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
+    auto dfs = [&](auto self, ll x, ll y) -> ll {
+        // memo の確認
+        if (memo[x][y] != 0) return memo[x][y];
     
+        // 更新値の計算
+        ll res = 0;
+        for (int i = 0; i < 4; i++) {
+            ll nx = x + dr[i];
+            ll ny = y + dc[i];
+            if (is_outside(nx, ny)) continue;
+            if (vec[nx][ny] == '#') continue;
+            chmax(res, self(self, nx, ny) + 1);
+        }
+    
+        // memo の更新
+        return memo[x][y] = res;
+    };
+
+    dfs(dfs, 0, 0);
+
+    debug_2d(memo);
 
     return 0;
 }

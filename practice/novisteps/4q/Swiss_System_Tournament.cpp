@@ -45,53 +45,50 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
     ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
+    vector<vector<char>> a(2*n, vector<char> (m));
+    rep(i, 2*n) rep(j, m) {
+        cin >> a[i][j];
+    }
+
+    vector<ll> vec(n*2);
+    iota(all(vec), 0);
+
+    vector<ll> point(2*n, 0);
     rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+        for (int j = 0; j < n; j++) {
+            if (a[vec[2*j]][i] == 'G' && a[vec[2*j+1]][i] == 'C') {
+                point[vec[2*j]]++;
+            } 
+            if (a[vec[2*j]][i] == 'C' && a[vec[2*j+1]][i] == 'P') {
+                point[vec[2*j]]++;
+            } 
+            if (a[vec[2*j]][i] == 'P' && a[vec[2*j+1]][i] == 'G') {
+                point[vec[2*j]]++;
             }
+            if (a[vec[2*j]][i] == 'C' && a[vec[2*j+1]][i] == 'G') {
+                point[vec[2*j+1]]++;
+            } 
+            if (a[vec[2*j]][i] == 'P' && a[vec[2*j+1]][i] == 'C') {
+                point[vec[2*j+1]]++;
+            } 
+            if (a[vec[2*j]][i] == 'G' && a[vec[2*j+1]][i] == 'P') {
+                point[vec[2*j+1]]++;
+            } 
         }
+        sort(all(vec), [&](ll x, ll y) {
+            if (point[x] == point[y]) return x < y;
+            return point[x] > point[y];
+        });
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
+    rep(i, 2*n) {
+        cout << vec[i]+1 << nl;
     }
-    cout << nl;
-
-    
 
     return 0;
 }

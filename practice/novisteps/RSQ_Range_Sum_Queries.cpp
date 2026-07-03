@@ -45,53 +45,62 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
+template <typename T>
+struct BIT {
     ll n;
-    Graph rG;
-}
+    vector<T> tree;
+
+    BIT(ll n) : n(n), tree(n + 1, 0) {}
+
+    void build(const vector<T>& a) {
+        for (ll i = 0; i < n; i++) tree[i + 1] = a[i];
+        for (ll i = 1; i <= n; i++) {
+            ll j = i + (i & -i);
+            if (j <= n) tree[j] += tree[i];
+        }
+    }
+
+    void add(ll i, T x) {
+        for (i++; i <= n; i += (i & -i)) tree[i] += x;
+    }
+
+    void update(ll i, T x) {
+        add(i, x - get(i));
+    }
+
+    T query(ll i) {
+        T s = 0;
+        for (; i > 0; i -= i & -i) s += tree[i];
+        return s;
+    }
+
+    T range_query(ll l, ll r) {
+        if (l >= r) return 0;
+        return query(r) - query(l);
+    }
+
+    T get(ll i) {
+        return query(i + 1) - query(i);
+    }
+};
 
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    ll n, q; cin >> n >> q;
+    BIT<ll> bit(n);
+    while (q--) {
+        ll t; cin >> t;
+        if (t == 1) {
+            ll pos, x; cin >> pos >> x;
+            bit.update(pos, x);
+        }
+        else {
+            ll l, r; cin >> l >> r;
+            cout << bit.range_query(l, r) << nl;
         }
     }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
-    }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
 
     return 0;
 }

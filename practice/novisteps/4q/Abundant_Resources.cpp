@@ -45,53 +45,59 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
+struct CumSum {
     ll n;
-    Graph rG;
-}
+    vector<ll> pref, suff;
+    
+    CumSum(const vector<ll>& a) {
+        n = a.size();
+        // pref[i] は a[i] を含まない
+        // suff[i] は a[i] を含む
+        pref.assign(n + 1, 0);
+        suff.assign(n + 1, 0);
 
+        // pref[i] = a[0] + ... + a[i-1] : [0, i)
+        for (ll i = 0; i < n; i++) {
+            pref[i + 1] = pref[i] + a[i];
+        }
+        // suff[i] = a[i] + ... + a[n-1] : [i, n)
+        for (ll i = n - 1; i >= 0; i--) {
+            suff[i] = suff[i + 1] + a[i];
+        }
+    }
+
+    ll sum_except(ll i) {
+        return pref[i] + suff[i + 1];
+    }
+
+    ll query(ll l, ll r) {
+        if (l >= r) return 0;
+        return pref[r] - pref[l];
+    }
+
+    pair<ll, ll> split_at(ll i) {
+        return {pref[i], suff[i]};
+    }
+};
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    ll n; cin >> n;
+    vll a(n); cin >> a;
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    CumSum cs(a);
+
+    for (int k = 1; k <= n; k++) {
+        ll sum = cs.pref[k-1];
+        ll ans = 0;
+        rep(i, n-k+1) {
+            sum += a[i+k-1];
+            chmax(ans, sum);
+            sum -= a[i];
         }
+        cout << ans << nl;
     }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
-    }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
 
     return 0;
 }

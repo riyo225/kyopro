@@ -45,53 +45,80 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
+    ll h, w; cin >> h >> w;
+    vector<vector<char>> vec(h, vector<char> (w));
+    rep(i, h) rep(j, w) {
+        cin >> vec[i][j];
     }
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
+    const ll dr[] = {1, 0, -1, 0}; const ll dc[] = {0, 1, 0, -1};
+    string DIRS = "DRUL";
+    const ll dr8[] = {1, 1, 0, -1, -1, -1, 0, 1}; const ll dc8[] = {0, 1, 1, 1, 0, -1, -1, -1};
+    auto is_inside = [&](ll r, ll c) { return 0 <= r && r < h && 0 <= c && c < w; };
+    auto is_outside = [&](ll r, ll c) { return r < 0 || h <= r || c < 0 || w <= c; };
+    auto get_id = [&](ll r, ll c) { return r * w + c; };
+    auto get_2d = [&](ll id)  { return make_pair(id / w, id % w); };
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
+    vector<vector<ll>> dist(h, vector<ll> (w, -1));
+    vector<vector<ll>> from(h, vector<ll> (w, -1));
+    queue<pll> que; 
 
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    ll cnt1 = 0, cnt2 = 0;
+    rep(i, h) rep(j, w) {
+        bool flag = false;
+        if (vec[i][j] == '#') {
+            rep(k, 8) {
+                ll ni = i + dr8[k];
+                ll nj = j + dc8[k];
+                if (!is_outside(ni, nj) && vec[ni][nj] != '#') flag = true;
             }
+            if (flag) {
+                que.push({i, j});
+                dist[i][j] = 0;
+            }
+            cnt1++;
         }
+        else cnt2++;
     }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
     
+    while (!que.empty()) {
+        auto [r, c] = que.front();
+        que.pop();
+    
+        for (int i = 0; i < 8; i++) {
+            ll nr = r + dr8[i];
+            ll nc = c + dc8[i];
+            if (is_outside(nr, nc)) continue;
+            if (dist[nr][nc] != -1) continue;
+            dist[nr][nc] = dist[r][c] + 1;
+            from[nr][nc] = i;
+            que.push({nr, nc});
+        }
+    }
+
+    vector<vector<char>> ans1(h, vector<char> (w, '.')), ans2(h, vector<char> (w));
+    rep(i, h) rep(j, w) {
+        if (dist[i][j] % 2 == 0) ans1[i][j] = '#';
+    }
+
+    rep(i, h) rep(j, w) {
+        if (ans1[i][j] == '#') ans2[i][j] = '.';
+        else ans2[i][j] = '#';
+    }
+
+    debug_2d(ans1);
+    debug_2d(ans2);
+
+    rep(i, h) {
+        rep(j, w) {
+            cout << ans1[i][j];
+        } 
+        cout << nl;
+    }
 
     return 0;
 }

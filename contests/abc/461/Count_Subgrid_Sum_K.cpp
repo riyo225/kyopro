@@ -45,53 +45,59 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
+struct CumSum2D {
+    ll h, w;
+    vector<vector<ll>> s;
 
+    CumSum2D(const vector<vector<ll>>& a) {
+        if (a.empty()) return;
+        h = a.size(); w = a[0].size();
 
-int main() {
-    setup_fast_io();
+        s.assign(h + 1, vector<ll> (w + 1, 0));
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+        for (ll i = 0; i < h; i++) {
+            for (ll j = 0; j < w; j++) {
+                s[i + 1][j + 1] = s[i][j + 1] + s[i + 1][j] - s[i][j] + a[i][j];
             }
         }
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
+    ll query(ll x1, ll y1, ll x2, ll y2) {
+        if (x1 >= x2 || y1 >= y2) return 0;
+        return s[x2][y2] - s[x1][y2] - s[x2][y1] + s[x1][y1];
+    }
+};
+
+int main() {
+    setup_fast_io();
+
+    ll h, w, k; cin >> h >> w >> k;
+    vector<vector<ll>> vec(h, vector<ll> (w));
+    rep(i, h) {
+        string s; cin >> s;
+        rep(j, w) {
+            if (s[j] == '0') vec[i][j] = 0;
+            else vec[i][j] = 1;
         }
     }
-    cout << nl;
 
-    
+    CumSum2D cs(vec);
+
+    ll ans = 0;
+    for (int r1 = 1; r1 <= h; r1++) {
+        for (int r2 = r1; r2 <= h; r2++) {
+            vector<ll> v(w+1, 0);
+            rep(i, w+1) {
+                v[i] = cs.query(r1-1, 0, r2, i);
+            }
+            map<ll, ll> count;
+            rep(i, w+1) {
+                if (count.count(v[i]-k)) ans += count[v[i]-k];
+                count[v[i]]++;
+            }
+        }
+    }
+    cout << ans << nl;
 
     return 0;
 }

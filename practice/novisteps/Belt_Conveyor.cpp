@@ -45,53 +45,55 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
+    ll h, w; cin >> h >> w;
+    vector<vector<char>> vec(h, vector<char> (w));
+    rep(i, h) rep(j, w) {
+        cin >> vec[i][j];
     }
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
+    vector<vector<bool>> seen(h, vector<bool> (w, false));
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
+    const ll dr[] = {1, 0, -1, 0}; const ll dc[] = {0, 1, 0, -1};
+    string DIRS = "DRUL";
+    const ll dr8[] = {1, 1, 0, -1, -1, -1, 0, 1}; const ll dc8[] = {0, 1, 1, 1, 0, -1, -1, -1};
+    auto is_inside = [&](ll r, ll c) { return 0 <= r && r < h && 0 <= c && c < w; };
+    auto is_outside = [&](ll r, ll c) { return r < 0 || h <= r || c < 0 || w <= c; };
+    auto get_id = [&](ll r, ll c) { return r * w + c; };
+    auto get_2d = [&](ll id)  { return make_pair(id / w, id % w); };
 
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+
+    ll r = 0, c = 0;
+    bool ans = true;
+    while (true) {
+        ll nr, nc;
+        seen[r][c] = true;
+        for (int i = 0; i < 4; i++) {
+            if (DIRS[i] == vec[r][c]) {
+                nr = r + dr[i];
+                nc = c + dc[i];
             }
         }
-    }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
+        if (is_outside(nr, nc)) {
+            break;
         }
-    }
-    cout << nl;
 
-    
+        if (seen[nr][nc]) {
+            ans = false;
+            break;
+        }
+
+        r = nr, c = nc;
+    }
+
+    if (ans) {
+        cout << r+1 << " " << c+1 << nl;
+    }
+    else cout << -1 << nl;
 
     return 0;
 }

@@ -45,53 +45,57 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    ll h, w; cin >> h >> w;
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    ll r, c; cin >> r >> c;
+    r--; c--;
+
+    vector<vector<char>> vec(h, vector<char> (w));
+    rep(i, h) rep(j, w) cin >> vec[i][j];
+
+    string x; cin >> x;
+
+    const ll dr[] = {1, 0, -1, 0}; const ll dc[] = {0, 1, 0, -1};
+    string DIRS = "DRUL";
+    const ll dr8[] = {1, 1, 0, -1, -1, -1, 0, 1}; const ll dc8[] = {0, 1, 1, 1, 0, -1, -1, -1};
+    auto is_inside = [&](ll r, ll c) { return 0 <= r && r < h && 0 <= c && c < w; };
+    auto is_outside = [&](ll r, ll c) { return r < 0 || h <= r || c < 0 || w <= c; };
+    auto get_id = [&](ll r, ll c) { return r * w + c; };
+    auto get_2d = [&](ll id)  { return make_pair(id / w, id % w); };
+
+    ll nr, nc;
+    rep(i, sz(x)) {
+        if (x[i] == 'L') {
+            nr = r;
+            nc = c - 1;
+            if (is_outside(nr, nc) || vec[nr][nc] == '#') continue;
+            r = nr, c = nc;
+        }
+        else if (x[i] == 'R') {
+            nr = r;
+            nc = c + 1;
+            if (is_outside(nr, nc) || vec[nr][nc] == '#') continue;
+            r = nr, c = nc;
+        }
+        else if (x[i] == 'U') {
+            nr = r - 1;
+            nc = c;
+            if (is_outside(nr, nc) || vec[nr][nc] == '#') continue;
+            r = nr, c = nc;
+        }
+        else {
+            nr = r + 1;
+            nc = c;
+            if (is_outside(nr, nc) || vec[nr][nc] == '#') continue;
+            r = nr, c = nc;
         }
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
-    }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
+    cout << r + 1 << " " << c + 1 << nl;
 
     return 0;
 }

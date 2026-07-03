@@ -45,53 +45,36 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    ll n; cin >> n;
+    ll sum = 0;
+    vll t(n); cin >> t;
+    rep(i, n) sum += t[i];
 
-    queue<ll> que;
+    vector<vector<bool>> dp(n+1, vector<bool> (sum+1, false));
+    dp[0][0] = true;
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+        for (int j = 0; j <= sum; j++) {
+            if (dp[i][j]) {
+                dp[i+1][j] = true;
+                dp[i+1][j+t[i]] = true;
             }
         }
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
+    ll mid = sum / 2;
+    ll ans;
+    for (int i = 0; i <= sum-mid; i++) {
+        if (dp[n][mid+i]) {
+            ans = max(mid+i, sum-mid-i);
+            break;
         }
     }
-    cout << nl;
 
-    
+    cout << ans << nl;
 
     return 0;
 }

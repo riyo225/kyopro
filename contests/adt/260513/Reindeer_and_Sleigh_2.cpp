@@ -45,53 +45,53 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    ll t; cin >> t;
+    while (t--) {
+        ll n; cin >> n;
+        vector<pll> w(n);
+        ll W = 0;
+        rep(i, n) {
+            cin >> w[i].first >> w[i].second;
+            W += w[i].first;
         }
-    }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
+        vector<pll> sub(n);
+        rep(i, n) {
+            sub[i].first = w[i].second + w[i].first;
+            sub[i].second = i;
+        }
+        sort(rall(sub));
 
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+        // ok が満たす条件
+        auto check = [&](ll mid) -> bool {
+            ll x = 0;
+            for (int i = 0; i < n-mid; i++) {
+                x += sub[i].first;
+            }
+            return x >= W;
+        };
+        
+        ll ok = 0;
+        ll ng = n;
+        
+        
+        while (abs(ok - ng) > 1) {
+            ll mid = (ok + ng) / 2;
+        
+            if (check(mid)) {
+                ok = mid;
+            }
+            else {
+                ng = mid;
             }
         }
+        
+        cout << ok << nl;
     }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
 
     return 0;
 }

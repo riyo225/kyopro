@@ -45,53 +45,40 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    ll n, s; cin >> n >> s;
+    vll a(n), b(n);
+    rep(i, n) cin >> a[i] >> b[i];
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    vector<vector<bool>> dp(n+1, vector<bool> (s+1, false));
+    dp[0][0] = true;
+    rep(i, n) rep(j, s+1) {
+        if (dp[i][j]) {
+            if (j+a[i] <= s) dp[i+1][j+a[i]] = true;
+            if (j+b[i] <= s) dp[i+1][j+b[i]] = true;
         }
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    yes(dp[n][s]);
+    if (dp[n][s]) {
+        string res = "";
+        ll cur = s;
+        for (int i = n-1; i >= 0; i--) {
+            if (s-a[i] >= 0 && dp[i][s-a[i]]) {
+                res.push_back('H');
+                s -= a[i];
+            }
+            else {
+                res.push_back('T');
+                s -= b[i];
             }
         }
+        reverse(all(res));
+        cout << res << nl;
     }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
 
     return 0;
 }

@@ -45,53 +45,51 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    ll t; cin >> t;
+    while (t--) {
+        string s; cin >> s;
+        map<char, ll> mp;
+        ll n = sz(s);
+        rep(i, n) {
+            mp[s[i]]++;
         }
-    }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+        bool flag = true;
+        vector<pair<ll, char>> vec;
+        for (auto [k, v] : mp) {
+            if (v >= 2 && v - 1 > n - v) {
+                flag = false;
             }
+            vec.push_back({v, k});
+        }
+
+        yes(flag);
+        if (flag) {
+            sort(rall(vec));
+            vector<string> ans(vec[0].first);
+            rep(i, vec[0].first) {
+                ans[i].push_back(vec[0].second);
+            }
+            ll N = vec[0].first;
+            ll idx = 0;
+            for (int i = 1; i < sz(vec); i++) {
+                auto [x, c] = vec[i];
+                while (x--) {
+                    ans[idx].push_back(c);
+                    idx++;
+                    idx %= N;
+                }
+            }
+            rep(i, N) {
+                cout << ans[i];
+            }
+            cout << nl;
         }
     }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
 
     return 0;
 }

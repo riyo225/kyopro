@@ -45,53 +45,65 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    ll h, w, d; cin >> h >> w >> d;
+    vector<vector<char>> vec(h, vector<char> (w));
+    rep(i, h) {
+        rep(j, w) {
+            cin >> vec[i][j];
         }
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
+    ll ans = 0;
+    rep(x1, h) rep(y1, w) {
+        rep(x2, h) rep(y2, w) {
+            if (x1 == x2 && y1 == y2) continue;
+            if (vec[x1][y1] == '#' || vec[x2][y2] == '#') continue;
 
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+            const ll dr[] = {1, 0, -1, 0}; const ll dc[] = {0, 1, 0, -1};
+            string DIRS = "DRUL";
+            const ll dr8[] = {1, 1, 0, -1, -1, -1, 0, 1}; const ll dc8[] = {0, 1, 1, 1, 0, -1, -1, -1};
+            auto is_inside = [&](ll r, ll c) { return 0 <= r && r < h && 0 <= c && c < w; };
+            auto is_outside = [&](ll r, ll c) { return r < 0 || h <= r || c < 0 || w <= c; };
+            auto get_id = [&](ll r, ll c) { return r * w + c; };
+            auto get_2d = [&](ll id)  { return make_pair(id / w, id % w); };
+            
+            vector<vector<ll>> dist(h, vector<ll> (w, -1));
+            vector<vector<ll>> from(h, vector<ll> (w, -1));
+            queue<pll> que;
+            dist[x1][y1] = 0;
+            dist[x2][y2] = 0;
+            que.push({x1, y1});
+            que.push({x2, y2});
+            
+            while (!que.empty()) {
+                auto [r, c] = que.front();
+                que.pop();
+                if (dist[r][c] == d) continue;
+            
+                for (int i = 0; i < 4; i++) {
+                    ll nr = r + dr[i];
+                    ll nc = c + dc[i];
+                    if (is_outside(nr, nc)) continue;
+                    if (dist[nr][nc] != -1) continue;
+                    dist[nr][nc] = dist[r][c] + 1;
+                    from[nr][nc] = i;
+                    que.push({nr, nc});
+                }
             }
+
+            ll cnt = 0;
+            rep(i, h) rep(j, w) {
+                if (dist[i][j] != -1 && vec[i][j] == '.') cnt++;
+            }
+            chmax(ans, cnt);
         }
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
+    cout << ans << nl;
 
     return 0;
 }

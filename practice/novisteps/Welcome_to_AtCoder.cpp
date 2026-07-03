@@ -45,53 +45,34 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
     ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
+    vll p(m); vector<string> s(m);
     rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
+        cin >> p[i] >> s[i];
     }
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
+    vector<bool> flag(n+1, false);
+    vector<ll> count(n+1, 0);
+
+    rep(i, m) {
+        if (s[i] == "AC") flag[p[i]] = true;
+        else if (s[i] == "WA" && !flag[p[i]]) count[p[i]]++;
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
+    ll cnt = 0;
+    rep(i, n+1) {
+        if (flag[i]) cnt++;
+    }
+    ll c = 0;
+    rep(i, n+1) {
+        if (flag[i]) c += count[i];
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
+    cout << cnt << " " << c << nl;
 
     return 0;
 }

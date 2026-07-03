@@ -45,53 +45,66 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
+struct UnionFind {
+    ll n, group_count;
+    vector<ll> par;
+    vector<ll> edge_size;
+
+    UnionFind(ll n) : n(n), par(n, -1), edge_size(n, 0), group_count(n) {}
+
+    ll root(ll x) {
+        if (par[x] < 0) return x;
+        return par[x] = root(par[x]);
+    }
+
+    bool unite(ll x, ll y) {
+        x = root(x);
+        y = root(y);
+        if (x == y) return false;
+        if (par[x] > par[y]) swap(x, y);
+        par[x] += par[y];
+        edge_size[x] += edge_size[y];
+        edge_size[x]++;
+        par[y] = x;
+        group_count--;
+        return true;
+    }
+
+    bool same(ll x, ll y) { return root(x) == root(y); }
+
+    ll size(ll x) { return -par[root(x)]; }
+
+    vector<vector<ll>> groups() {
+        vector<vector<ll>> res(n);
+        for (ll i = 0; i < n; i++) res[root(i)].push_back(i);
+        res.erase(
+            remove_if(res.begin(), res.end(), [](const vector<ll>& v) { return v.empty(); }),
+            res.end()
+        );
+        return res;
+    }
+};
 
 
 int main() {
     setup_fast_io();
 
     ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
+    UnionFind uf(n);
+    vll edge_count(n, 0);
     rep(i, m) {
         ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
+        uf.unite(u, v);
+        edge_count[u]++;
+        if (u != v) edge_count[v]++;
     }
 
-    queue<ll> que;
+    bool ans = true;
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
+        if (uf.size(i) != edge_count[i]) ans = false;
     }
+    yes(ans);
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
-    }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
 
     return 0;
 }

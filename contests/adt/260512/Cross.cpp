@@ -45,53 +45,42 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    ll h, w; cin >> h >> w;
+    vector<vector<char>> c(h, vector<char> (w));
+    rep(i, h) {
+        rep(j, w) {
+            cin >> c[i][j];
         }
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
+    ll n = min(h, w);
+    vll ans(n+1, 0);
+    vector<vector<bool>> use(h, vector<bool> (w, false));
 
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    for (int size = n; size >= 1; size--) {
+        for (int i = size; i < h - size; i++) {
+            for (int j = size; j < w - size; j++) {
+                if (c[i][j] != '#' || use[i][j]) continue;
+                bool flag = true;
+                for (int d = 1; d <= size; d++) {
+                    if (c[i+d][j+d] != '#' || c[i+d][j-d] != '#' || c[i-d][j-d] != '#' || c[i-d][j+d] != '#') flag = false;
+                }
+                if (flag) {
+                    ans[size]++;
+                    use[i][j] = true;
+                }
             }
         }
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
+    for (int i = 1; i <= n; i++) {
+        cout << ans[i] << " ";
     }
     cout << nl;
-
-    
 
     return 0;
 }

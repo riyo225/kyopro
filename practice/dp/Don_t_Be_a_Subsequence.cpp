@@ -45,53 +45,53 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
+struct NextOccurrence {
     ll n;
-    Graph rG;
-}
+    vector<vector<ll>> nxt;
 
+    NextOccurrence(const string& s) : n(s.size()) {
+        nxt.assign(n + 1, vector<ll> (26, n));
+        for (ll i = n - 1; i >= 0; i--) {
+            nxt[i] = nxt[i + 1];
+            nxt[i][s[i] - 'a'] = i;
+        }
+    }
+
+    ll next_pos(ll i, char c) const {
+        if (i < 0) i = 0;
+        if (i > n) return n;
+        return nxt[i][c - 'a'];
+    }
+
+    bool is_subsequence(const string& t) const {
+        ll cur = 0;
+        for (char c : t) {
+            cur = next_pos(cur, c);
+            if (cur == n) return false;
+            cur++;
+        }
+        return true;
+    }
+
+    bool contains(ll start, char c) const {
+        return next_pos(start, c) < n;
+    }
+};
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    string a; cin >> a;
+    NextOccurrence nxt(a);
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    ll n = sz(a);
+    vector<vector<bool>> dp(n+1, vector<bool> (26, false));
+    dp[0][0] = true;
+    for (int i = 1; i <= n; i++) {
+        for (char c = 'a'; c <= 'z'; c++) {
+            if (nxt.next_pos())
         }
     }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
-    }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
 
     return 0;
 }

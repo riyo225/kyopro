@@ -1,0 +1,1 @@
+{"name":"Local: C","url":"/home/rmaejp/kyopro/contests/icpc/260621/C.cpp","tests":[{"id":1782019472740,"input":"14 2\noo__ox_ooooox_\n7 5\nox__xoo\n6 0\no_oxo_\n0 0\n","output":"6\n2\n1"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"/home/rmaejp/kyopro/contests/icpc/260621/C.cpp","group":"local","local":true}

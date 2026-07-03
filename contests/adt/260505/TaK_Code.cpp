@@ -45,53 +45,34 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
     ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
+    vector<vector<char>> vec(n, vector<char> (m));
+    rep(i, n) rep(j, m) {
+        cin >> vec[i][j];
     }
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    for (int i = 0; i <= n-9; i++) {
+        for (int j = 0; j <= m-9; j++) {
+            bool flag = true;
+            for (int a = 0; a < 3; a++) for (int b = 0; b < 3; b++) {
+                if (vec[i+a][j+b] != '#') flag = false;
+                if (vec[i+a+6][j+b+6] != '#') flag = false;
+            }
+            for (int a = 0; a < 4; a++) {
+                if (vec[i+3][a+j] != '.') flag = false;
+                if (vec[a+i][j+3] != '.') flag = false;
+                if (vec[i+5][j+8-a] != '.') flag = false;
+                if (vec[i+8-a][j+5] != '.') flag = false;
+            }
+            if (flag) {
+                cout << i+1 << " " << j+1 << nl;
             }
         }
     }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
 
     return 0;
 }

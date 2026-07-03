@@ -45,53 +45,53 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    string s; cin >> s;
+    ll n = sz(s);
+    reverse(all(s));
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
-    }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    bool ans = true;
+    for (int i = 0; i < n; ) {
+        if (s[i] == 'r') {
+            if (i+6 <= n && s.substr(i, 6) == "resare") {
+                i += 6;
+            }
+            else if (i+7 <= n && s.substr(i, 7) == "remaerd") {
+                i += 7;
+            }
+            else {
+                ans = false;
+                break;
             }
         }
-    }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
+        else if (s[i] == 'e') {
+            if (i+5 <= n && s.substr(i, 5) == "esare") {
+                i += 5;
+            }
+            else {
+                ans = false;
+                break;
+            }
+        }
+        else if (s[i] == 'm') {
+            if (i+5 <= n && s.substr(i, 5) == "maerd") {
+                i += 5;
+            }
+            else {
+                ans = false;
+                break;
+            }
+        }
+        else {
+            ans = false;
+            break;
         }
     }
-    cout << nl;
 
-    
+    YES(ans);
 
     return 0;
 }

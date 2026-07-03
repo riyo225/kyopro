@@ -45,53 +45,56 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
+struct Edge { ll to; ll cost; };
+using WGraph = vector<vector<Edge>>;
 
+vector<ll> dijkstra(const WGraph& G, ll s) {
+    vector<ll> dist(G.size(), INF);
+    using P = pair<ll, ll>;
+    priority_queue<P, vector<P>, greater<P>> pq;
+
+    dist[s] = 0;
+    pq.push({0, s});
+
+    while (!pq.empty()) {
+        auto [d, v] = pq.top();
+        pq.pop();
+
+        if (d > dist[v]) continue;
+
+        for (const auto& [nv, c] : G[v]) {
+            if (dist[nv] > dist[v] + c) {
+                dist[nv] = dist[v] + c;
+                pq.push({dist[nv], nv});
+            }
+        }
+    }
+    return dist;
+}
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
+    ll n, m, k; cin >> n >> m >> k;
+    WGraph graph(m);
+    rep(i, k) {
+        ll u, v, w; cin >> u >> v >> w;
+        u--; v--;
+        graph[u].push_back({v, w});
+        graph[v].push_back({u, w});
+    }
+
+    vvll vec(m);
     rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
+        vec[i] = dijkstra(graph, i);
     }
 
-    queue<ll> que;
+    ll ans = 0;
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
+        ll s, t; cin >> s >> t; s--; t--;
+        ans += vec[s][t];
     }
-
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
-            }
-        }
-    }
-
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
+    cout << ans << nl;
 
     return 0;
 }

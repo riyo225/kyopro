@@ -45,53 +45,88 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
+// 素数判定
+bool is_prime(ll n) {
+    if (n <= 1) return false;
+    for (ll i = 2; i * i <= n; i++) {
+        if (n % i == 0) return false;
+    }
+    return true;
 }
 
+// 素因数分解
+map<ll, ll> prime_factorize(ll n) {
+    // {素因数, 指数}
+    map<ll, ll> res;
+    for (ll i = 2; i * i <= n; i++) {
+        while(n % i == 0) { res[i]++; n /= i; }
+    }
+    if (n > 1) res[n]++;
+    return res;
+}
+
+// 約数列挙
+vector<ll> get_divisors(ll n) {
+    vector<ll> res;
+    for (ll i = 1; i * i <= n; i++) {
+        if (n % i == 0) {
+            res.push_back(i);
+            if (i * i != n) res.push_back(n / i);
+        }
+    }
+    sort(res.begin(), res.end());
+    return res;
+}
+
+ll isqrt(ll n) {
+    if (n <= 0) return 0;
+    ll ok = 0, ng = 3037000500LL;
+    while (ng - ok > 1) {
+        ll mid = ok + (ng - ok) / 2;
+        if (mid <= n / mid) ok = mid;
+        else ng = mid;
+    }
+    return ok;
+}
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
+    ll n; cin >> n;
 
-    queue<ll> que;
-    rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
+    vector<ll> res;
+    for (ll b = 1; b * b * b <= n; b++) {
+        if  (n % b == 0) {
+            res.push_back(b);
         }
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
+    debug_all(res);
 
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    ll x = -1, y = -1;
+    for (int i = 0; i < sz(res); i++) {
+        ll a = res[i];
+        if (a * a * a > n) break;
+        ll rem = n - a * a * a;
+        if (rem % (3 * a) != 0) continue;
+        ll z = rem / (3 * a);
+        ll D = a * a + 4 * z;
+
+        if (D < 0) continue;
+        ll sq = round(sqrt(D));
+        if (sq * sq == D) {
+            if ((a + sq) % 2 == 0) {
+                x = (a + sq) / 2;
+                y = x - a;
+                break;
             }
         }
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
+    if (x == -1 || y <= 0) {
+        cout << -1 << nl;
     }
-    cout << nl;
-
-    
+    else cout << x << " " << y << nl;
 
     return 0;
 }

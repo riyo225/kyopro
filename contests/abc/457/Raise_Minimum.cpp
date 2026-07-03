@@ -45,53 +45,58 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
-
 
 int main() {
     setup_fast_io();
 
-    ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
-    rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
-        outdeg[u]++;
-        rgraph[v].push_back(u);
-    }
-
-    queue<ll> que;
+    ll n, k; cin >> n >> k;
+    vll a(n); cin >> a;
+    ll min_ = INF;
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
+        chmin(min_, a[i]);
     }
+    vector<pll> vec(n);
+    rep(i, n) {
+        vec[i] = {a[i], i+1};
+    }
+    sort(all(vec));
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
-
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    // ok が満たす条件
+    auto check = [&](ll mid) -> bool {
+        if (vec[0].first >= mid) return true;
+        ll count = 0;
+        bool flag = true;
+        for (int i = 0; i < n; i++) {
+            if (vec[i].first >= mid) continue;
+            ll cnt = (mid - vec[i].first) / vec[i].second;
+            if ((mid - vec[i].first) % vec[i].second != 0) cnt++;
+            if ((vec[i].first + cnt * vec[i].second < mid) || count + cnt > k) {
+                flag = false;
+                break;
+            }
+            else {
+                count += cnt;
             }
         }
-    }
+        return flag;
+    };
+    
+    ll ok = min_;
+    ll ng = 4e18;
+    
+    
+    while (abs(ok - ng) > 1) {
+        ll mid = (ok + ng) / 2;
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
+        if (check(mid)) {
+            ok = mid;
+        }
+        else {
+            ng = mid;
         }
     }
-    cout << nl;
-
     
+    cout << ok << nl;
 
     return 0;
 }

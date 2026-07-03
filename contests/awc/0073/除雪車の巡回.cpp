@@ -45,53 +45,75 @@ void setup_fast_io() {
     cout << fixed << setprecision(15);
 }
 
-struct RevTopoSort {
-    ll n;
-    Graph rG;
-}
+struct Edge { ll to; ll cost; };
+using WGraph = vector<vector<Edge>>;
 
+vector<ll> dijkstra(const WGraph& G, ll s) {
+    vector<ll> dist(G.size(), INF);
+    using P = pair<ll, ll>;
+    priority_queue<P, vector<P>, greater<P>> pq;
+
+    dist[s] = 0;
+    pq.push({0, s});
+
+    while (!pq.empty()) {
+        auto [d, v] = pq.top();
+        pq.pop();
+
+        if (d > dist[v]) continue;
+
+        for (const auto& [nv, c] : G[v]) {
+            if (dist[nv] > dist[v] + c) {
+                dist[nv] = dist[v] + c;
+                pq.push({dist[nv], nv});
+            }
+        }
+    }
+    return dist;
+}
 
 int main() {
     setup_fast_io();
 
     ll n, m; cin >> n >> m;
-    Graph graph(n);
-    vector<ll> outdeg(n, 0);
-    Graph rgraph(n);
+    WGraph graph(n);
+    vll outdeg(n, 0);
+    ll sum = 0;
     rep(i, m) {
-        ll u, v; cin >> u >> v; u--; v--;
-        graph[u].push_back(v);
+        ll u, v, w; cin >> u >> v >> w; u--; v--;
+        graph[u].push_back({v, w});
+        graph[v].push_back({u, w});
+        sum += w;
         outdeg[u]++;
-        rgraph[v].push_back(u);
+        outdeg[v]++;
     }
 
-    queue<ll> que;
+    vector<ll> idx;
     rep(i, n) {
-        if (outdeg[i] == 0) {
-            que.push(i);
-        }
+        if (outdeg[i] % 2 != 0) idx.push_back(i);
     }
 
-    while (!que.empty()) {
-        ll v = que.front();
-        que.pop();
+    ll k = sz(idx);
+    vector<ll> dp((1 << k), INF);
+    dp[0] = 0;
 
-        for (ll nv : rgraph[v]) {
-            outdeg[nv]--;
-            if (outdeg[nv] == 0) {
-                que.push(nv);
+    vector<vector<ll>> vec(k);
+    rep(i, k) {
+        vec[i] = dijkstra(graph, idx[i]);
+    }
+
+    for (int i = 0; i < (1 << k); i++) {
+        for (int x = 0; x < k - 1; x++) {
+            for (int y = x + 1; y < k; y++) {
+                if (x == y) continue;
+                if (i & (1 << x) || i & (1 << y)) continue;
+                ll nbit = (i | (1 << x) | (1 << y));
+                chmin(dp[nbit], dp[i] + vec[x][idx[y]]);
             }
         }
     }
 
-    rep(i, n) {
-        if (outdeg[i] > 0) {
-            cout << i+1 << " ";
-        }
-    }
-    cout << nl;
-
-    
+    cout << sum + dp[(1 << k) - 1] << nl;
 
     return 0;
 }
